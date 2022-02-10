@@ -56,34 +56,12 @@ app.get("/posts", authenticateToken, async function(req, res) {
 app.get("/placements", authenticateToken, async function(req, res) {
 
   var companies = [];
-
   const querySnapshot1 = await getDocs(collection(db, "Placements"));
-
   querySnapshot1.forEach((doc) => {
-    // doc.data() is never undefined for query doc snapshots
     console.log(doc.id, " => ", doc.data());
     companies.push(doc.id);
   });
-
   var placements = [];
-  //
-  // companies.forEach(async (doc) => {
-  //
-  //   const path = "Placements/" + doc + "/Jobs";
-  //   const docsSnap = await getDocs(collection(db, path));
-  //   var temp = {"companyname": doc, "jobs" : []};
-  //
-  //   docsSnap.forEach((doc2) => {
-  //
-  //     temp["jobs"].push(doc2.data());
-  //   });
-  //
-  //   console.log(temp);
-  //   placements.push(temp);
-  //   console.log("==============================================================================================================================");
-  // });
-  //
-  //
   for (var i = 0; i < companies.length; i++) {
     const path = "Placements/" + companies[i] + "/Jobs";
     const docsSnap = await getDocs(collection(db, path));
@@ -94,11 +72,38 @@ app.get("/placements", authenticateToken, async function(req, res) {
     docsSnap.forEach((doc2) => {
       temp["jobs"].push(doc2.data());
     });
-    console.log(temp);
+    // console.log(temp);
     placements.push(temp);
   }
-  console.log("Here");
+
   res.status(200).json({placements: placements});
+});
+
+app.get("/competitions", authenticateToken, async function(req, res){
+  var types=[];
+  const querySnapshot1 = await getDocs(collection(db, "Competitions"));
+  querySnapshot1.forEach((doc)=>{
+    types.push(doc.id);
+  });
+  console.log(types);
+  var competitions = [];
+  for(var i=0; i<types.length;i++){
+    const path = "Competitions/"+types[i]+"/Contests";
+    console.log(path);
+    const docsSnap = await getDocs(collection(db, path));
+    var temp = {
+      "type": types[i],
+      "competitions": []
+    };
+    docsSnap.forEach((doc2)=>{
+      console.log(doc2.data());
+      temp["competitions"].push(doc2.data());
+    });
+    // console.log(temp);
+    competitions.push(temp);
+  }
+  // console.log(competitions);
+  res.status(200).json({competitions: competitions});
 });
 
 app.post("/login", async function(req, res) {
@@ -175,8 +180,8 @@ function authenticateToken(req, res, next) {
   // });
 
   //USE THE FOLLOWING LINE FOR REAL TIME BUT FOR TEST USE TEST_BEARER_TOKEN
-  if (token === bearerToken) {
-  // if (token == process.env.TEST_BEARER_TOKEN) {
+  // if (token === bearerToken) {
+  if (token == process.env.TEST_BEARER_TOKEN) {
     next();
   } else {
     console.log("Not Authenticated");
