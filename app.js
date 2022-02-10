@@ -210,8 +210,8 @@ function authenticateToken(req, res, next) {
   // });
 
   //USE THE FOLLOWING LINE FOR REAL TIME BUT FOR TEST USE TEST_BEARER_TOKEN
-  // if (token === bearerToken) {
-    if (token == process.env.TEST_BEARER_TOKEN) {
+  if (token === bearerToken) {
+    // if (token == process.env.TEST_BEARER_TOKEN) {
     next();
   } else {
     console.log("Not Authenticated");
