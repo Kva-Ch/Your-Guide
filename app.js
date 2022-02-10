@@ -17,6 +17,7 @@ import {
   getDocs,
   collectionGroup
 } from "firebase/firestore";
+import cors from 'cors';
 
 const firebaseConfig = {
   apiKey: "AIzaSyD60EVX8UVtIqwPZJAsqWAUZEFHT--6pOc",
@@ -33,6 +34,7 @@ const app2 = initializeApp(firebaseConfig);
 const db = getFirestore();
 const app = express();
 app.use(express.static('public'));
+app.use(cors());
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
@@ -180,8 +182,8 @@ function authenticateToken(req, res, next) {
   // });
 
   //USE THE FOLLOWING LINE FOR REAL TIME BUT FOR TEST USE TEST_BEARER_TOKEN
-  // if (token === bearerToken) {
-  if (token == process.env.TEST_BEARER_TOKEN) {
+  if (token === bearerToken) {
+  // if (token == process.env.TEST_BEARER_TOKEN) {
     next();
   } else {
     console.log("Not Authenticated");
