@@ -81,23 +81,23 @@ app.get("/placements", authenticateToken, async function(req, res) {
   res.status(200).json({placements: placements});
 });
 
-app.get("/competitions", authenticateToken, async function(req, res){
-  var types=[];
+app.get("/competitions", authenticateToken, async function(req, res) {
+  var types = [];
   const querySnapshot1 = await getDocs(collection(db, "Competitions"));
-  querySnapshot1.forEach((doc)=>{
+  querySnapshot1.forEach((doc) => {
     types.push(doc.id);
   });
   console.log(types);
   var competitions = [];
-  for(var i=0; i<types.length;i++){
-    const path = "Competitions/"+types[i]+"/Contests";
+  for (var i = 0; i < types.length; i++) {
+    const path = "Competitions/" + types[i] + "/Contests";
     console.log(path);
     const docsSnap = await getDocs(collection(db, path));
     var temp = {
       "type": types[i],
       "competitions": []
     };
-    docsSnap.forEach((doc2)=>{
+    docsSnap.forEach((doc2) => {
       console.log(doc2.data());
       temp["competitions"].push(doc2.data());
     });
@@ -108,10 +108,37 @@ app.get("/competitions", authenticateToken, async function(req, res){
   res.status(200).json({competitions: competitions});
 });
 
+app.get("/ebooks", authenticateToken, async function(req, res) {
+  var types = [];
+  const querySnapshot1 = await getDocs(collection(db, "Ebooks"));
+  querySnapshot1.forEach((doc) => {
+    types.push(doc.id);
+  });
+  console.log(types);
+  var ebooks = [];
+  for (var i = 0; i < types.length; i++) {
+    console.log("Here");
+    const path = "Ebooks/" + types[i] + "/Books";
+    console.log(path);
+    const docsSnap = await getDocs(collection(db, path));
+    var temp = {
+      type: types[i],
+      ebooks: []
+    };
+    docsSnap.forEach((doc2) => {
+      console.log(doc2.data());
+      temp["ebooks"].push(doc2.data());
+    });
+    ebooks.push(temp);
+  }
+  res.status(200).json({ebooks: ebooks});
+});
+
 app.post("/login", async function(req, res) {
   const username = req.body.username;
   const password = req.body.password;
   const auth = getAuth();
+  console.log(username, password);
   signInWithEmailAndPassword(auth, username, password).then((userCredential) => {
     // Signed in
     const user = userCredential.user;
@@ -121,6 +148,7 @@ app.post("/login", async function(req, res) {
     refreshBearerToken = refreshToken;
     res.status(200).json({status: 200, accessToken: accessToken});
   }).catch((error) => {
+    console.log("Login error");
     const errorCode = error.code;
     const errorMessage = error.message;
     console.log(errorMessage);
@@ -182,8 +210,8 @@ function authenticateToken(req, res, next) {
   // });
 
   //USE THE FOLLOWING LINE FOR REAL TIME BUT FOR TEST USE TEST_BEARER_TOKEN
-  if (token === bearerToken) {
-  // if (token == process.env.TEST_BEARER_TOKEN) {
+  // if (token === bearerToken) {
+    if (token == process.env.TEST_BEARER_TOKEN) {
     next();
   } else {
     console.log("Not Authenticated");
