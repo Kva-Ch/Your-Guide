@@ -7,7 +7,7 @@ import ejs from 'ejs';
 import {initializeApp} from "firebase/app";
 import {getAnalytics} from "firebase/analytics";
 import {getFirestore} from "firebase/firestore";
-import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
+import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut} from "firebase/auth";
 import {
   doc,
   getDoc,
@@ -134,7 +134,7 @@ app.get("/ebooks", authenticateToken, async function(req, res) {
   res.status(200).json({ebooks: ebooks});
 });
 
-app.get("/tutorials", authenticateToken, async function(req, res){
+app.get("/tutorials", authenticateToken, async function(req, res) {
   var types = [];
   const querySnapshot1 = await getDocs(collection(db, "Tutorials"));
   querySnapshot1.forEach((doc) => {
@@ -143,13 +143,13 @@ app.get("/tutorials", authenticateToken, async function(req, res){
   // console.log(types);
   var tutorials = [];
   for (var i = 0; i < types.length; i++) {
-    const path = "Tutorials/"+types[i]+"/Videos";
+    const path = "Tutorials/" + types[i] + "/Videos";
     const docsSnap = await getDocs(collection(db, path));
     var temp = {
       type: types[i],
       tutorials: []
     };
-    docsSnap.forEach((doc2)=>{
+    docsSnap.forEach((doc2) => {
       // console.log(doc2.data());
       temp["tutorials"].push(doc2.data());
     });
@@ -158,7 +158,7 @@ app.get("/tutorials", authenticateToken, async function(req, res){
   res.status(200).json({tutorials: tutorials});
 });
 
-app.get("/roadmaps", authenticateToken, async function(req, res){
+app.get("/roadmaps", authenticateToken, async function(req, res) {
   var roadmaps = [];
   const querySnapshot1 = await getDocs(collection(db, "Roadmaps"));
   querySnapshot1.forEach((doc) => {
@@ -171,6 +171,28 @@ app.get("/roadmaps", authenticateToken, async function(req, res){
     // console.log(temp);
   });
   res.status(200).json({roadmaps: roadmaps});
+});
+
+app.get("/journals", authenticateToken, async function(req, res) {
+  var types = [];
+  const querySnapshot1 = await getDocs(collection(db, "Journals"));
+  querySnapshot1.forEach((doc) => {
+    types.push(doc.id);
+  });
+  var journals = [];
+  for (var i = 0; i < types.length; i++) {
+    const path = "Journals/" + types[i] + "/Papers";
+    const docsSnap = await getDocs(collection(db, path));
+    var temp = {
+      types: types[i],
+      journals: []
+    };
+    docsSnap.forEach((doc2) => {
+      temp["journals"].push(doc2.data());
+    });
+    journals.push(temp);
+  }
+  res.status(200).json({journals: journals});
 });
 
 app.post("/login", async function(req, res) {
@@ -191,7 +213,7 @@ app.post("/login", async function(req, res) {
     const errorCode = error.code;
     const errorMessage = error.message;
     console.log(errorMessage);
-    res.status(errorCode);
+    res.status(errorCode).json({status: 400});
   });
   // const user = {username: username, password: password};
   // console.log(user);
@@ -218,13 +240,26 @@ app.post("/register", async function(req, res) {
     if (errorCode === "auth/email-already-in-use") {
       res.status(409).json({status: 409, message: "user already there"});
     } else {
-      res.status(errorCode);
+      res.status(errorCode).json({status: 400, message: "error occured"});
     }
   });
   // const user = {username: username, password: password};
   // console.log(user);
   // const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
   // res.status(200).json({accessToken: accessToken, user: user});
+});
+
+app.get("/logout", authenticateToken, async function(req, res) {
+  const auth = getAuth();
+  signOut(auth).then(() => {
+    // Sign-out successful.
+    bearerToken="";
+    res.status(200).json({message: "Successfully logged out"});
+  }).catch((error) => {
+    // An error happened.
+    console.log(error);
+    res.status(400).json({message: "Error with logging out"});
+  });
 });
 
 function authenticateToken(req, res, next) {
