@@ -134,6 +134,30 @@ app.get("/ebooks", authenticateToken, async function(req, res) {
   res.status(200).json({ebooks: ebooks});
 });
 
+app.get("/tutorials", authenticateToken, async function(req, res){
+  var types = [];
+  const querySnapshot1 = await getDocs(collection(db, "Tutorials"));
+  querySnapshot1.forEach((doc) => {
+    types.push(doc.id);
+  });
+  console.log(types);
+  var tutorials = [];
+  for (var i = 0; i < types.length; i++) {
+    const path = "Tutorials/"+types[i]+"/Videos";
+    const docsSnap = await getDocs(collection(db, path));
+    var temp = {
+      type: types[i],
+      tutorials: []
+    };
+    docsSnap.forEach((doc2)=>{
+      console.log(doc2.data());
+      temp["tutorials"].push(doc2.data());
+    });
+    tutorials.push(temp);
+  }
+  res.status(200).json({tutorials: tutorials});
+});
+
 app.post("/login", async function(req, res) {
   const username = req.body.username;
   const password = req.body.password;
