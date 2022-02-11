@@ -60,7 +60,7 @@ app.get("/placements", authenticateToken, async function(req, res) {
   var companies = [];
   const querySnapshot1 = await getDocs(collection(db, "Placements"));
   querySnapshot1.forEach((doc) => {
-    console.log(doc.id, " => ", doc.data());
+    // console.log(doc.id, " => ", doc.data());
     companies.push(doc.id);
   });
   var placements = [];
@@ -87,18 +87,18 @@ app.get("/competitions", authenticateToken, async function(req, res) {
   querySnapshot1.forEach((doc) => {
     types.push(doc.id);
   });
-  console.log(types);
+  // console.log(types);
   var competitions = [];
   for (var i = 0; i < types.length; i++) {
     const path = "Competitions/" + types[i] + "/Contests";
-    console.log(path);
+    // console.log(path);
     const docsSnap = await getDocs(collection(db, path));
     var temp = {
       "type": types[i],
       "competitions": []
     };
     docsSnap.forEach((doc2) => {
-      console.log(doc2.data());
+      // console.log(doc2.data());
       temp["competitions"].push(doc2.data());
     });
     // console.log(temp);
@@ -114,19 +114,19 @@ app.get("/ebooks", authenticateToken, async function(req, res) {
   querySnapshot1.forEach((doc) => {
     types.push(doc.id);
   });
-  console.log(types);
+  // console.log(types);
   var ebooks = [];
   for (var i = 0; i < types.length; i++) {
-    console.log("Here");
+    // console.log("Here");
     const path = "Ebooks/" + types[i] + "/Books";
-    console.log(path);
+    // console.log(path);
     const docsSnap = await getDocs(collection(db, path));
     var temp = {
       type: types[i],
       ebooks: []
     };
     docsSnap.forEach((doc2) => {
-      console.log(doc2.data());
+      // console.log(doc2.data());
       temp["ebooks"].push(doc2.data());
     });
     ebooks.push(temp);
@@ -140,7 +140,7 @@ app.get("/tutorials", authenticateToken, async function(req, res){
   querySnapshot1.forEach((doc) => {
     types.push(doc.id);
   });
-  console.log(types);
+  // console.log(types);
   var tutorials = [];
   for (var i = 0; i < types.length; i++) {
     const path = "Tutorials/"+types[i]+"/Videos";
@@ -150,12 +150,27 @@ app.get("/tutorials", authenticateToken, async function(req, res){
       tutorials: []
     };
     docsSnap.forEach((doc2)=>{
-      console.log(doc2.data());
+      // console.log(doc2.data());
       temp["tutorials"].push(doc2.data());
     });
     tutorials.push(temp);
   }
   res.status(200).json({tutorials: tutorials});
+});
+
+app.get("/roadmaps", authenticateToken, async function(req, res){
+  var roadmaps = [];
+  const querySnapshot1 = await getDocs(collection(db, "Roadmaps"));
+  querySnapshot1.forEach((doc) => {
+    var temp = {
+      type: doc.id,
+      roadmaps: []
+    };
+    temp["roadmaps"].push(doc.data());
+    roadmaps.push(temp);
+    // console.log(temp);
+  });
+  res.status(200).json({roadmaps: roadmaps});
 });
 
 app.post("/login", async function(req, res) {
@@ -213,13 +228,13 @@ app.post("/register", async function(req, res) {
 });
 
 function authenticateToken(req, res, next) {
-  console.log(req.headers);
+  // console.log(req.headers);
   const authHeader = req.headers['authorization'];
   console.log("Auth Header is: " + authHeader + "\n");
   const token = authHeader && authHeader.split(' ')[1];
-  console.log("Token is: " + token + "\n");
-  console.log("BearerToken is: " + bearerToken + "\n");
-  console.log(bearerToken === token);
+  // console.log("Token is: " + token + "\n");
+  // console.log("BearerToken is: " + bearerToken + "\n");
+  // console.log(bearerToken === token);
   if (token == null) {
     console.log("No token is sent");
     res.status(401);
