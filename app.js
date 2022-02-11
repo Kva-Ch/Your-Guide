@@ -195,6 +195,10 @@ app.get("/journals", authenticateToken, async function(req, res) {
   res.status(200).json({journals: journals});
 });
 
+app.get("/token", async function(req, res){
+  res.status(200).json({accessToken: bearerToken});
+});
+
 app.post("/login", async function(req, res) {
   const username = req.body.username;
   const password = req.body.password;
