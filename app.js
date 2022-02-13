@@ -99,7 +99,9 @@ app.get("/competitions", authenticateToken, async function(req, res) {
     };
     docsSnap.forEach((doc2) => {
       // console.log(doc2.data());
-      temp["competitions"].push(doc2.data());
+      var data = doc2.data();
+      data["Name"]=doc2.id;
+      temp["competitions"].push(data);
     });
     // console.log(temp);
     competitions.push(temp);
@@ -217,7 +219,15 @@ app.post("/login", async function(req, res) {
     const errorCode = error.code;
     const errorMessage = error.message;
     console.log(errorMessage);
-    res.status(errorCode).json({status: 400});
+    if(errorCode === "auth/wrong-password"){
+      res.status(200).json({status: 409, message: "wrong password"});
+    } else if(errorCode === "auth/user-not-found"){
+      res.status(200).json({status: 409, message: "User not exists, please sign up"});
+    } else if(errorCode === "auth/invalid-email"){
+      res.status(200).json({status: 409, message: "Enter Valid Email"});
+    } else{
+        res.status(errorCode).json({status: 400, message: errorMessage});
+    }
   });
   // const user = {username: username, password: password};
   // console.log(user);
@@ -242,7 +252,11 @@ app.post("/register", async function(req, res) {
     const errorMessage = error.message;
     console.log(errorMessage + "\n" + errorCode);
     if (errorCode === "auth/email-already-in-use") {
-      res.status(409).json({status: 409, message: "user already there"});
+      res.status(200).json({status: 409, message: "user already there"});
+    } else if(errorCode === "auth/invalid-email"){
+      res.status(200).json({status: 409, message: "Enter Valid Email"});
+    } else if(errorCode === "auth/weak-password"){
+      res.status(200).json({status: 409, message: "Weak Passoword, Please try another password!"});
     } else {
       res.status(errorCode).json({status: 400, message: "error occured"});
     }
